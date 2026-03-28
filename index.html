@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>a2native — A2UI Protocol</title>
+  <title>a2native — Native Desktop UI Renderer for AI Agents</title>
   <meta name="description" content="Collect user input via native UI forms for AI agents. One JSON in, one JSON out. No chat loop." />
   <style>
     :root {
@@ -239,7 +239,7 @@
 
 <!-- Hero -->
 <section class="hero">
-  <div class="badge">✦ A2UI Protocol v0.1 Implementation</div>
+  <div class="badge">✦ Native Generative UI for AI Agents</div>
   <h1>Native UI forms<br/>for <em>AI agents</em></h1>
   <p class="hero-sub">
     <strong>Native Generative UI for AI agents.</strong><br/>
@@ -304,8 +304,8 @@
 <!-- Protocol Stack -->
 <section>
   <div class="container">
-    <h2>Where A2UI Fits in the Agentic Protocol Stack</h2>
-    <p class="section-sub">Three complementary protocols — each for a different layer of agent interaction.</p>
+    <h2>Where a2native Fits in the Agentic Protocol Stack</h2>
+    <p class="section-sub">Four complementary protocols — each for a different layer of agent interaction.</p>
     <table>
       <thead>
         <tr><th>Layer</th><th>Protocol</th><th>Purpose</th></tr>
@@ -314,17 +314,19 @@
         <tr><td>Agent ↔ Tools &amp; Data</td><td><a href="https://modelcontextprotocol.io" target="_blank">MCP</a></td><td>Gives agents access to tools, files, APIs</td></tr>
         <tr><td>Agent ↔ Agent</td><td><a href="https://google.github.io/A2A/" target="_blank">A2A</a></td><td>Agent-to-agent coordination</td></tr>
         <tr><td>Agent ↔ Web UI</td><td><a href="https://github.com/ag-ui-protocol/ag-ui" target="_blank">AG-UI</a></td><td>Streaming, real-time agent↔browser integration</td></tr>
-        <tr style="background:rgba(108,99,255,0.08)"><td><strong>Agent ↔ Native Desktop</strong></td><td><strong>A2UI (this project)</strong></td><td><strong>Sync form collection via native OS windows</strong></td></tr>
+        <tr><td>Agent ↔ Generative UI</td><td><a href="https://github.com/google/a2ui" target="_blank">A2UI</a> (Google)</td><td>Declarative JSON UI for web / Flutter rendering</td></tr>
+        <tr style="background:rgba(108,99,255,0.08)"><td><strong>Agent ↔ Native Desktop</strong></td><td><strong>a2native</strong></td><td><strong>Sync form collection via native OS windows</strong></td></tr>
       </tbody>
     </table>
 
     <div style="margin-top:1.5rem;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:0.9rem;color:var(--muted)">
-      <strong style="color:var(--text)">A2UI ≠ AG-UI</strong> &nbsp;—&nbsp;
-      despite similar names, these are different protocols for different environments.
-      <a href="https://github.com/ag-ui-protocol/ag-ui" target="_blank" style="color:var(--accent2)">AG-UI</a>
-      is a <em>streaming web protocol</em> (SSE/WebSocket, requires Node.js + frontend SDK);
-      <strong>A2UI</strong> is a <em>synchronous native-desktop protocol</em> (stdin/stdout, single binary).
-      Both solve agent↔human interaction — in different environments. They are complementary.
+      <strong style="color:var(--text)">Three things that sound alike but aren't:</strong> &nbsp;
+      <a href="https://github.com/ag-ui-protocol/ag-ui" target="_blank" style="color:var(--accent2)">AG-UI</a> is a streaming web protocol (SSE/WebSocket);
+      <a href="https://github.com/google/a2ui" target="_blank" style="color:var(--accent2)">Google A2UI</a> is a declarative JSON UI spec for web/Flutter;
+      <strong>a2native</strong> is a synchronous native-desktop renderer (stdin/stdout, single binary).
+      All three solve agent↔human interaction in different environments — they are complementary.
+      a2native's input format is conceptually inspired by Google A2UI's flat component list but is
+      not an implementation of the Google A2UI spec.
     </div>
   </div>
 </section>
@@ -421,8 +423,8 @@
 <!-- Protocol -->
 <section id="protocol">
   <div class="container">
-    <h2>A2UI Protocol</h2>
-    <p class="section-sub">A minimal JSON contract between agents and native UI renderers. This release targets <strong>A2UI v0.1</strong>. &nbsp;<a href="https://a2native.github.io/schema/a2ui-v0.1.schema.json" style="color:var(--accent2)" target="_blank">JSON Schema ↗</a> &nbsp;·&nbsp; <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px">a2n schema</code></p>
+    <h2>Input Format</h2>
+    <p class="section-sub">A minimal JSON contract between agents and native UI renderers. Conceptually inspired by <a href="https://github.com/google/a2ui" style="color:var(--accent2)" target="_blank">Google A2UI</a>, adapted for stdin/stdout CLI use. &nbsp;<a href="https://a2native.github.io/schema/a2ui-v0.1.schema.json" style="color:var(--accent2)" target="_blank">JSON Schema ↗</a> &nbsp;·&nbsp; <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px">a2n schema</code></p>
 
     <pre><code><span class="hlm">// Input</span>
 {
@@ -520,7 +522,7 @@
 <span class="hlm"># Show help (also shown when there is no JSON arg and no stdin pipe)</span>
 <span class="hlb">./target/release/a2n</span> help
 
-<span class="hlm"># Print the A2UI input JSON Schema</span>
+<span class="hlm"># Print the a2native input JSON Schema</span>
 <span class="hlb">./target/release/a2n</span> schema
 
 <span class="hlm"># One-shot: JSON as inline argument</span>
@@ -537,12 +539,12 @@
 <!-- Footer -->
 <footer>
   <p>
-    <strong>a2native</strong> · A2UI Protocol v0.1 · Apache-2.0 ·
+    <strong>a2native</strong> · Apache-2.0 ·
     <a href="https://github.com/a2native/a2native">GitHub</a> ·
     <a href="https://github.com/a2native/a2native/blob/main/README.zh.md">中文文档</a> ·
-    <a href="https://a2native.github.io/schema/a2ui-v0.1.schema.json">A2UI Schema</a>
+    <a href="https://a2native.github.io/schema/a2ui-v0.1.schema.json">Input Schema</a>
   </p>
-  <p style="margin-top:0.5rem">Built with <a href="https://github.com/emilk/egui">egui</a> · Inspired by <a href="https://github.com/vercel-labs/agent-browser">agent-browser</a> · See also <a href="https://github.com/ag-ui-protocol/ag-ui">AG-UI</a> (web streaming)</p>
+  <p style="margin-top:0.5rem">Built with <a href="https://github.com/emilk/egui">egui</a> · Inspired by <a href="https://github.com/vercel-labs/agent-browser">agent-browser</a> · See also <a href="https://github.com/google/a2ui">Google A2UI</a> · <a href="https://github.com/ag-ui-protocol/ag-ui">AG-UI</a> (web streaming)</p>
 </footer>
 
 </body>
