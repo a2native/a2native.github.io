@@ -179,6 +179,20 @@
     .pill-green { background: rgba(52,211,153,0.12); color: var(--green); }
     .pill-purple { background: rgba(108,99,255,0.12); color: var(--accent2); }
 
+    /* ── Screenshots ── */
+    .screenshots-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem;
+    }
+    @media (max-width: 720px) { .screenshots-grid { grid-template-columns: 1fr; } }
+    .screenshot-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    }
+    .screenshot-card img { width: 100%; display: block; border-bottom: 1px solid var(--border); }
+    .screenshot-caption { padding: 0.7rem 1rem; font-size: 0.82rem; color: var(--muted); }
+    .screenshot-caption strong { color: var(--text); }
+
     /* ── Security section ── */
     .risk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; margin-top: 1.5rem; }
     .risk-card {
@@ -211,6 +225,7 @@
 <nav>
   <a class="nav-logo" href="#"><span>a2</span>native</a>
   <ul class="nav-links">
+    <li><a href="#demo">Demo</a></li>
     <li><a href="#problem">Problem</a></li>
     <li><a href="#session">Sessions</a></li>
     <li><a href="#protocol">Protocol</a></li>
@@ -244,6 +259,24 @@
     <div class="flow-item"><div class="flow-icon">🪟</div><div class="flow-label">Native window<br/>(egui)</div></div>
     <div class="flow-arrow">→</div>
     <div class="flow-item"><div class="flow-icon">📤</div><div class="flow-label">JSON result<br/>via stdout</div></div>
+  </div>
+</section>
+
+<!-- Screenshots -->
+<section id="demo">
+  <div class="container">
+    <h2>See It In Action</h2>
+    <p class="section-sub">Light and dark themes — with the built-in multilingual AI-generated UI security warning.</p>
+    <div class="screenshots-grid">
+      <div class="screenshot-card">
+        <img src="assets/img/screenshot-light.png" alt="a2native light mode — New Project Setup form" />
+        <div class="screenshot-caption"><strong>Light mode</strong> — dropdown, checkboxes, text field, slider</div>
+      </div>
+      <div class="screenshot-card">
+        <img src="assets/img/screenshot-dark.png" alt="a2native dark mode — Configure Deployment form" />
+        <div class="screenshot-caption"><strong>Dark mode</strong> — radio group, number input, dropdown</div>
+      </div>
+    </div>
   </div>
 </section>
 
