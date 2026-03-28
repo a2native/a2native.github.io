@@ -239,7 +239,7 @@
 
 <!-- Hero -->
 <section class="hero">
-  <div class="badge">✦ A2UI Protocol Implementation</div>
+  <div class="badge">✦ A2UI Protocol v0.1 Implementation</div>
   <h1>Native UI forms<br/>for <em>AI agents</em></h1>
   <p class="hero-sub">
     Stop wasting rounds of chat to collect structured input.
@@ -254,7 +254,7 @@
   <div class="flow">
     <div class="flow-item"><div class="flow-icon">🤖</div><div class="flow-label">Agent</div></div>
     <div class="flow-arrow">→</div>
-    <div class="flow-item"><div class="flow-icon">📄</div><div class="flow-label">JSON spec<br/>via stdin</div></div>
+    <div class="flow-item"><div class="flow-icon">📄</div><div class="flow-label">JSON spec<br/>stdin or arg</div></div>
     <div class="flow-arrow">→</div>
     <div class="flow-item"><div class="flow-icon">🪟</div><div class="flow-label">Native window<br/>(egui)</div></div>
     <div class="flow-arrow">→</div>
@@ -388,7 +388,7 @@
 <section id="protocol">
   <div class="container">
     <h2>A2UI Protocol</h2>
-    <p class="section-sub">A minimal JSON contract between agents and native UI renderers.</p>
+    <p class="section-sub">A minimal JSON contract between agents and native UI renderers. This release targets <strong>A2UI v0.1</strong>. &nbsp;<a href="https://a2native.github.io/schema/a2ui-v0.1.schema.json" style="color:var(--accent2)" target="_blank">JSON Schema ↗</a> &nbsp;·&nbsp; <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px">a2n schema</code></p>
 
     <pre><code><span class="hlm">// Input</span>
 {
@@ -483,7 +483,16 @@
 <span class="hlb">cd</span> a2native
 <span class="hlg">cargo build</span> <span class="hlp">--release</span>
 
-<span class="hlm"># One-shot usage</span>
+<span class="hlm"># Show help (also shown when running a2n with no arguments)</span>
+<span class="hlb">./target/release/a2n</span> help
+
+<span class="hlm"># Print the A2UI input JSON Schema</span>
+<span class="hlb">./target/release/a2n</span> schema
+
+<span class="hlm"># One-shot: JSON as inline argument</span>
+<span class="hlb">./target/release/a2n</span> <span class="hly">'{"components":[{"id":"n","type":"text-field","label":"Name"}]}'</span>
+
+<span class="hlm"># One-shot: JSON from stdin</span>
 <span class="hlg">echo</span> <span class="hly">'{"components":[{"id":"n","type":"text-field","label":"Name"}]}'</span> | <span class="hlb">./target/release/a2n</span>
 
 <span class="hlm"># Multi-turn session</span>
@@ -494,7 +503,7 @@
 <!-- Footer -->
 <footer>
   <p>
-    <strong>a2native</strong> · A2UI Protocol · MIT License ·
+    <strong>a2native</strong> · A2UI Protocol v0.1 · Apache-2.0 ·
     <a href="https://github.com/a2native/a2native">GitHub</a> ·
     <a href="https://github.com/a2native/a2native/blob/main/README.zh.md">中文文档</a>
   </p>
