@@ -83,7 +83,7 @@ form = {
   ]
 }
 
-result = subprocess.run([<span class="hly">"a2n"</span>], input=json.dumps(form),
+result = subprocess.run([<span class="hly">"a2n"</span>, json.dumps(form)],
                         capture_output=True, text=True)
 data = json.loads(result.stdout)
 
@@ -104,6 +104,19 @@ const codeJsSdkAgents = `<span class="hlm"># npm install @a2native/js</span>
   ],
 });
 <span class="hlm">// result.status === "submitted", result.values.model === "gpt-4o"</span>`;
+
+const codeSession = `<span class="hlm"># Turn 1 — opens the window (daemon spawns in background)</span>
+<span class="hlg">echo</span> <span class="hly">'{"title":"Wizard 1/3","components":[...]}'</span> | <span class="hlb">a2n</span> <span class="hlp">--session</span> abc123
+<span class="hlm"># → {"status":"submitted","values":{...}}</span>
+
+<span class="hlm"># Turn 2 — same window, new form (no new window spawned)</span>
+<span class="hlg">echo</span> <span class="hly">'{"title":"Wizard 2/3","components":[...]}'</span> | <span class="hlb">a2n</span> <span class="hlp">--session</span> abc123
+
+<span class="hlm"># Turn 3 — final step</span>
+<span class="hlg">echo</span> <span class="hly">'{"title":"Wizard 3/3","components":[...]}'</span> | <span class="hlb">a2n</span> <span class="hlp">--session</span> abc123
+
+<span class="hlm"># Close the window when done</span>
+<span class="hlb">a2n</span> <span class="hlp">--close</span> abc123`;
 
 const codeGetStarted = `<span class="hlm"># Install from crates.io</span>
 <span class="hlg">cargo install</span> a2native
@@ -241,7 +254,7 @@ const codeGetStarted = `<span class="hlm"># Install from crates.io</span>
       <div class="feature">
         <div class="feature-icon">🔄</div>
         <h3>Session Mode</h3>
-        <p>UUID-keyed long-lifecycle windows. The same window updates across multiple agent turns — no flicker, no re-spawn. <a href="advanced.html#session" style="color:var(--accent2)">Learn more →</a></p>
+        <p>UUID-keyed long-lifecycle windows. The same window updates across multiple agent turns — no flicker, no re-spawn. <a href="#session" style="color:var(--accent2)">Learn more →</a></p>
       </div>
       <div class="feature">
         <div class="feature-icon">🌐</div>
@@ -411,6 +424,56 @@ const codeGetStarted = `<span class="hlm"># Install from crates.io</span>
 
     <h3 style="font-size:1.05rem;margin-top:1.5rem">JavaScript SDK</h3>
     <pre><code set:html={codeJsSdkAgents}></code></pre>
+  </div>
+</section>
+
+<!-- Session Mode -->
+<section id="session">
+  <div class="container">
+    <h2>Session Mode — Multi-Turn Interactions</h2>
+    <p class="section-sub">
+      Inspired by <a href="https://github.com/vercel-labs/agent-browser" style="color:var(--accent2)">agent-browser</a>'s
+      client-daemon pattern: the window lives, the agent turns are short.
+      Pass the same UUID on every turn and the form updates in place — no flicker, no re-spawn.
+    </p>
+
+    <pre><code set:html={codeSession}></code></pre>
+
+    <div class="session-diagram">
+      <div class="sd-row">
+        <div class="sd-label">Turn 1</div>
+        <div class="sd-content"><span class="pill pill-purple">daemon spawns</span> Window opens. First form shown.</div>
+      </div>
+      <div class="sd-row">
+        <div class="sd-label">User</div>
+        <div class="sd-content">Fills form, clicks Submit → <span class="pill pill-green">JSON → stdout</span></div>
+      </div>
+      <div class="sd-row">
+        <div class="sd-label">Window</div>
+        <div class="sd-content">Shows "⏳ Waiting for the agent to send the next step…"</div>
+      </div>
+      <div class="sd-row">
+        <div class="sd-label">Turn 2</div>
+        <div class="sd-content"><span class="pill pill-blue">IPC update</span> Window form replaced. No flicker.</div>
+      </div>
+      <div class="sd-row">
+        <div class="sd-label">--close</div>
+        <div class="sd-content">Daemon exits cleanly. Port file removed.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem;padding:1.1rem 1.4rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:0.875rem;color:var(--muted)">
+      <strong style="color:var(--text)">How it works:</strong>
+      On the first call with a new UUID the CLI spawns a background daemon that binds a random TCP port
+      and writes it to <code>&#123;TMPDIR&#125;/a2n-session-&#123;uuid&#125;.port</code>. Subsequent calls with the same UUID
+      connect via IPC and push the new form spec without opening a new process. The egui window lives
+      on the daemon's main thread throughout.
+    </div>
+
+    <p style="margin-top:1.25rem;color:var(--muted);font-size:0.9rem">
+      For HTTP/SSE and WebSocket daemon usage, see the
+      <a href="advanced.html" style="color:var(--accent2)">Advanced Usage →</a> page.
+    </p>
   </div>
 </section>
 
