@@ -423,10 +423,31 @@
 <!-- Protocol -->
 <section id="protocol">
   <div class="container">
-    <h2>Input Format — Two Modes</h2>
-    <p class="section-sub">a2native auto-detects the format from the input JSON.</p>
+    <h2>Input Format — Three Modes</h2>
+    <p class="section-sub">a2native auto-detects the format. Priority: AG-UI → Google A2UI → legacy.</p>
 
-    <h3 style="margin:1.5rem 0 0.5rem;color:var(--accent2)">Mode 1 — Google A2UI (recommended)</h3>
+    <h3 style="margin:1.5rem 0 0.5rem;color:var(--accent2)">Mode 1 — AG-UI (frontend tool handler)</h3>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.8rem">
+      Acts as an <a href="https://github.com/ag-ui-protocol/ag-ui" target="_blank" style="color:var(--accent2)">AG-UI</a>
+      frontend tool: receives <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px">TOOL_CALL_START</code> /
+      <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px">TOOL_CALL_ARGS</code> /
+      <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px">TOOL_CALL_END</code> events,
+      renders the form, emits a
+      <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px">TOOL_CALL_RESULT</code>.
+      Tool call args can be in legacy or Google A2UI format — both are auto-detected.
+    </p>
+    <pre><code><span class="hlm">// Input — AG-UI event stream</span>
+{<span class="hlp">"type"</span>:<span class="hly">"RUN_STARTED"</span>,<span class="hlp">"threadId"</span>:<span class="hly">"t1"</span>,<span class="hlp">"runId"</span>:<span class="hly">"r1"</span>}
+{<span class="hlp">"type"</span>:<span class="hly">"TOOL_CALL_START"</span>,<span class="hlp">"toolCallId"</span>:<span class="hly">"tc1"</span>,<span class="hlp">"toolCallName"</span>:<span class="hly">"show_form"</span>}
+{<span class="hlp">"type"</span>:<span class="hly">"TOOL_CALL_ARGS"</span>,<span class="hlp">"toolCallId"</span>:<span class="hly">"tc1"</span>,<span class="hlp">"delta"</span>:<span class="hly">"{\"title\":\"Deploy\","</span>}
+{<span class="hlp">"type"</span>:<span class="hly">"TOOL_CALL_ARGS"</span>,<span class="hlp">"toolCallId"</span>:<span class="hly">"tc1"</span>,<span class="hlp">"delta"</span>:<span class="hly">"\"components\":[{\"id\":\"ok\",\"type\":\"button\",\"label\":\"Go\",\"action\":\"submit\"}]}"</span>}
+{<span class="hlp">"type"</span>:<span class="hly">"TOOL_CALL_END"</span>,<span class="hlp">"toolCallId"</span>:<span class="hly">"tc1"</span>}
+
+<span class="hlm">// Output — AG-UI TOOL_CALL_RESULT</span>
+{<span class="hlp">"type"</span>:<span class="hly">"TOOL_CALL_RESULT"</span>,<span class="hlp">"messageId"</span>:<span class="hly">"tc1-result"</span>,<span class="hlp">"toolCallId"</span>:<span class="hly">"tc1"</span>,
+ <span class="hlp">"content"</span>:<span class="hly">"{\"status\":\"submitted\",\"values\":{}}"</span>,<span class="hlp">"role"</span>:<span class="hly">"tool"</span>}</code></pre>
+
+    <h3 style="margin:1.5rem 0 0.5rem;color:var(--accent2)">Mode 2 — Google A2UI (native surface rendering)</h3>
     <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.8rem">
       Natively accepts <a href="https://github.com/google/a2ui" target="_blank" style="color:var(--accent2)">Google A2UI v0.8+</a>
       <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px">surfaceUpdate</code> /
@@ -447,7 +468,7 @@
 {<span class="hlp">"userAction"</span>:{<span class="hlp">"name"</span>:<span class="hly">"submit"</span>,<span class="hlp">"surfaceId"</span>:<span class="hly">"form1"</span>,<span class="hlp">"sourceComponentId"</span>:<span class="hly">"btn"</span>,
   <span class="hlp">"timestamp"</span>:<span class="hly">"2026-01-01T12:00:00Z"</span>,<span class="hlp">"context"</span>:{<span class="hlp">"env"</span>:<span class="hly">"prod"</span>}}}</code></pre>
 
-    <h3 style="margin:1.5rem 0 0.5rem;color:var(--accent2)">Mode 2 — a2native legacy format</h3>
+    <h3 style="margin:1.5rem 0 0.5rem;color:var(--accent2)">Mode 3 — a2native legacy format</h3>
     <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.8rem">
       a2native's own simpler format. Auto-detected when input lacks
       <code style="background:var(--code-bg);padding:1px 5px;border-radius:4px">surfaceUpdate</code>.
