@@ -5,232 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>a2native — Native Desktop UI Renderer for AI Agents</title>
   <meta name="description" content="Collect user input via native UI forms for AI agents. One JSON in, one JSON out. No chat loop." />
-  <style>
-    :root {
-      --bg:       #0d0f14;
-      --surface:  #151820;
-      --border:   #252935;
-      --accent:   #6c63ff;
-      --accent2:  #a78bfa;
-      --warn:     #f59e0b;
-      --text:     #e2e8f0;
-      --muted:    #94a3b8;
-      --code-bg:  #1e2230;
-      --green:    #34d399;
-      --red:      #f87171;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      font-size: 16px;
-      line-height: 1.7;
-    }
-
-    /* ── Nav ── */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem; height: 56px;
-      background: rgba(13,15,20,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-logo { font-weight: 700; font-size: 1.1rem; color: var(--text); text-decoration: none; letter-spacing: -0.01em; }
-    .nav-logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
-    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
-    .nav-links a:hover { color: var(--text); }
-    .nav-gh {
-      display: flex; align-items: center; gap: 0.4rem;
-      padding: 0.35rem 1rem; border-radius: 6px;
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--text); text-decoration: none; font-size: 0.85rem;
-      transition: border-color .2s;
-    }
-    .nav-gh:hover { border-color: var(--accent); }
-
-    /* ── Hero ── */
-    .hero {
-      max-width: 860px; margin: 0 auto;
-      padding: 7rem 2rem 5rem;
-      text-align: center;
-    }
-    .badge {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.25rem 0.75rem; border-radius: 999px;
-      background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3);
-      color: var(--accent2); font-size: 0.8rem; font-weight: 500;
-      margin-bottom: 1.5rem;
-    }
-    h1 {
-      font-size: clamp(2.4rem, 6vw, 4rem);
-      font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
-      margin-bottom: 1.25rem;
-    }
-    h1 em { font-style: normal; color: var(--accent); }
-    .hero-sub {
-      font-size: 1.15rem; color: var(--muted); max-width: 560px; margin: 0 auto 2.5rem;
-    }
-    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-    .btn {
-      padding: 0.65rem 1.6rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600;
-      text-decoration: none; transition: opacity .2s, transform .15s;
-    }
-    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-
-    /* ── Flow diagram ── */
-    .flow {
-      display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
-      gap: 0; margin: 4rem auto 0; max-width: 700px;
-    }
-    .flow-item {
-      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; padding: 1rem 1.4rem; min-width: 130px;
-      text-align: center;
-    }
-    .flow-icon { font-size: 1.6rem; }
-    .flow-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
-    .flow-arrow { font-size: 1.2rem; color: var(--border); padding: 0 0.3rem; }
-
-    /* ── Warning banner preview ── */
-    .banner-preview {
-      display: flex; align-items: center; gap: 0.6rem;
-      background: var(--warn); border-radius: 6px;
-      padding: 0.5rem 1rem; margin: 3rem auto 0; max-width: 640px;
-      color: #1c1000; font-size: 0.87rem; font-weight: 500;
-    }
-
-    /* ── Sections ── */
-    section { padding: 5rem 2rem; }
-    .container { max-width: 900px; margin: 0 auto; }
-    h2 {
-      font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em;
-      margin-bottom: 0.5rem;
-    }
-    .section-sub { color: var(--muted); margin-bottom: 2.5rem; font-size: 1rem; }
-
-    /* ── Problem / Solution cards ── */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; padding: 1.5rem;
-    }
-    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.6rem; }
-    .card p { color: var(--muted); font-size: 0.9rem; }
-    .card.bad  { border-color: rgba(248,113,113,0.25); }
-    .card.good { border-color: rgba(52,211,153,0.25); }
-    .card.bad h3  { color: var(--red); }
-    .card.good h3 { color: var(--green); }
-
-    /* ── Features grid ── */
-    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 1.5rem; }
-    .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
-    .feature-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
-    .feature h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
-    .feature p { color: var(--muted); font-size: 0.85rem; }
-
-    /* ── Code block ── */
-    pre {
-      background: var(--code-bg); border: 1px solid var(--border);
-      border-radius: 10px; padding: 1.25rem 1.5rem;
-      overflow-x: auto; font-size: 0.83rem; line-height: 1.6;
-      color: #c9d1d9;
-    }
-    code { font-family: 'Fira Code', 'Cascadia Code', monospace; }
-    .hlg { color: #a3f7bf; }   /* green */
-    .hlp { color: #c9a7eb; }   /* purple */
-    .hly { color: #ffd580; }   /* yellow */
-    .hlb { color: #82aaff; }   /* blue */
-    .hlm { color: var(--muted); }  /* muted */
-
-    /* ── Session diagram ── */
-    .session-diagram {
-      border: 1px solid var(--border); border-radius: 12px;
-      overflow: hidden; margin-top: 2rem;
-    }
-    .sd-row {
-      display: flex; align-items: stretch;
-      border-bottom: 1px solid var(--border);
-    }
-    .sd-row:last-child { border-bottom: none; }
-    .sd-label {
-      width: 110px; flex-shrink: 0;
-      padding: 0.8rem 1rem; font-size: 0.75rem; font-weight: 600;
-      color: var(--muted); background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex; align-items: center;
-    }
-    .sd-content {
-      flex: 1; padding: 0.8rem 1.2rem; font-size: 0.83rem; color: var(--text);
-      display: flex; align-items: center; gap: 0.5rem;
-    }
-    .pill {
-      display: inline-block; padding: 0.15rem 0.55rem; border-radius: 4px;
-      font-size: 0.73rem; font-weight: 600; white-space: nowrap;
-    }
-    .pill-blue { background: rgba(130,170,255,0.12); color: #82aaff; }
-    .pill-green { background: rgba(52,211,153,0.12); color: var(--green); }
-    .pill-purple { background: rgba(108,99,255,0.12); color: var(--accent2); }
-
-    /* ── Screenshots ── */
-    .screenshots-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem;
-    }
-    @media (max-width: 720px) { .screenshots-grid { grid-template-columns: 1fr; } }
-    .screenshot-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
-    }
-    .screenshot-card img { width: 100%; display: block; border-bottom: 1px solid var(--border); }
-    .screenshot-caption { padding: 0.7rem 1rem; font-size: 0.82rem; color: var(--muted); }
-    .screenshot-caption strong { color: var(--text); }
-
-    /* ── Security section ── */
-    .risk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; margin-top: 1.5rem; }
-    .risk-card {
-      background: var(--surface); border: 1px solid rgba(248,113,113,0.2);
-      border-radius: 10px; padding: 1.2rem;
-    }
-    .risk-card h4 { font-size: 0.85rem; color: var(--red); margin-bottom: 0.4rem; }
-    .risk-card p { font-size: 0.82rem; color: var(--muted); }
-
-    /* ── Components table ── */
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 1.5rem; }
-    th { text-align: left; padding: 0.6rem 0.8rem; color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); }
-    td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
-    tr:last-child td { border-bottom: none; }
-    .comp-type { font-family: monospace; color: var(--accent2); font-size: 0.82rem; }
-
-    /* ── Footer ── */
-    footer {
-      text-align: center; padding: 3rem 2rem;
-      border-top: 1px solid var(--border);
-      color: var(--muted); font-size: 0.85rem;
-    }
-    footer a { color: var(--muted); text-decoration: none; }
-    footer a:hover { color: var(--text); }
-  </style>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
 
 <!-- Nav -->
 <nav>
-  <a class="nav-logo" href="#"><span>a2</span>native</a>
+  <a class="nav-logo" href="/"><span>a2</span>native</a>
   <ul class="nav-links">
     <li><a href="#demo">Demo</a></li>
     <li><a href="#problem">Problem</a></li>
-    <li><a href="#session">Sessions</a></li>
-    <li><a href="#sse-ws">SSE/WS</a></li>
     <li><a href="#protocol">Protocol</a></li>
     <li><a href="#security">Security</a></li>
+    <li><a href="advanced.html">Advanced ↗</a></li>
   </ul>
   <a class="nav-gh" href="https://github.com/a2native/a2native" target="_blank">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -346,7 +133,12 @@
       <div class="feature">
         <div class="feature-icon">🔄</div>
         <h3>Session Mode</h3>
-        <p>UUID-keyed long-lifecycle windows. The same window updates across multiple agent turns — no flicker, no re-spawn.</p>
+        <p>UUID-keyed long-lifecycle windows. The same window updates across multiple agent turns — no flicker, no re-spawn. <a href="advanced.html#session" style="color:var(--accent2)">Learn more →</a></p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🌐</div>
+        <h3>SSE &amp; WebSocket</h3>
+        <p>External agents (Python, Node…) can drive a2native over HTTP/SSE or WebSocket — no CLI wrapper needed. <a href="advanced.html#sse-ws" style="color:var(--accent2)">Learn more →</a></p>
       </div>
       <div class="feature">
         <div class="feature-icon">🎨</div>
@@ -374,94 +166,6 @@
         <p>Pause agent execution, hand control to the user for structured input, then resume — without breaking the agent pipeline.</p>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- Session mode -->
-<section id="session">
-  <div class="container">
-    <h2>Session Mode</h2>
-    <p class="section-sub">Inspired by <a href="https://github.com/vercel-labs/agent-browser" style="color:var(--accent2)">agent-browser</a>'s client-daemon pattern: the window lives, the agent turns are short.</p>
-
-    <pre><code><span class="hlm"># Turn 1 — opens the window (daemon spawns in background)</span>
-<span class="hlg">echo</span> <span class="hly">'{"title":"Wizard 1/3","components":[...]}'</span> | <span class="hlb">a2n</span> <span class="hlp">--session</span> abc123
-<span class="hlm"># → {"status":"submitted","values":{...}}</span>
-
-<span class="hlm"># Turn 2 — same window, new form (no new window spawned)</span>
-<span class="hlg">echo</span> <span class="hly">'{"title":"Wizard 2/3","components":[...]}'</span> | <span class="hlb">a2n</span> <span class="hlp">--session</span> abc123
-
-<span class="hlm"># Turn 3 — final step</span>
-<span class="hlg">echo</span> <span class="hly">'{"title":"Wizard 3/3","components":[...]}'</span> | <span class="hlb">a2n</span> <span class="hlp">--session</span> abc123
-
-<span class="hlm"># Close the window</span>
-<span class="hlb">a2n</span> <span class="hlp">--close</span> abc123</code></pre>
-
-    <div class="session-diagram">
-      <div class="sd-row">
-        <div class="sd-label">Turn 1</div>
-        <div class="sd-content"><span class="pill pill-purple">daemon spawns</span> Window opens. First form shown.</div>
-      </div>
-      <div class="sd-row">
-        <div class="sd-label">User</div>
-        <div class="sd-content">Fills form, clicks Submit → <span class="pill pill-green">JSON → stdout</span></div>
-      </div>
-      <div class="sd-row">
-        <div class="sd-label">Window</div>
-        <div class="sd-content">Shows "⏳ Waiting for the agent to send the next step…"</div>
-      </div>
-      <div class="sd-row">
-        <div class="sd-label">Turn 2</div>
-        <div class="sd-content"><span class="pill pill-blue">IPC update</span> Window form replaced. No flicker.</div>
-      </div>
-      <div class="sd-row">
-        <div class="sd-label">--close</div>
-        <div class="sd-content">Daemon exits cleanly. Port file removed.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SSE / WebSocket -->
-<section id="sse-ws">
-  <div class="container">
-    <h2>HTTP/SSE &amp; WebSocket</h2>
-    <p class="section-sub">Add <code>--sse &lt;PORT&gt;</code> or <code>--ws &lt;PORT&gt;</code> to a session — any language can drive a2native directly, no CLI wrapper needed.</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem">
-        <div style="color:var(--accent2);font-weight:600;margin-bottom:0.5rem">HTTP / SSE</div>
-        <code style="font-size:0.8rem;color:var(--muted)">POST http://127.0.0.1:PORT/form</code>
-        <p style="font-size:0.85rem;color:var(--muted);margin-top:0.5rem">Body: JSON form spec. Response: <code>text/event-stream</code> — <em>waiting</em> event then <em>result</em> event.</p>
-        <p style="font-size:0.8rem;color:var(--muted);margin-top:0.4rem">Also: <code>GET /health</code> liveness probe.</p>
-      </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem">
-        <div style="color:var(--accent2);font-weight:600;margin-bottom:0.5rem">WebSocket</div>
-        <code style="font-size:0.8rem;color:var(--muted)">ws://127.0.0.1:PORT</code>
-        <p style="font-size:0.85rem;color:var(--muted);margin-top:0.5rem">Send form spec as text frame. Receive <em>{type:waiting}</em> then <em>{type:result,data:{…}}</em>. One connection, multiple forms.</p>
-      </div>
-    </div>
-
-    <pre><code><span class="hlm"># Start SSE daemon (no initial form needed)</span>
-<span class="hlb">a2n</span> <span class="hlp">--session</span> my-session <span class="hlp">--sse</span> 8080
-<span class="hlm"># → a2n: SSE  http://127.0.0.1:8080/form  (session: my-session)</span>
-
-<span class="hlm"># Python agent — POST form spec, read SSE result</span>
-<span class="hlg">resp</span> = requests.post(<span class="hly">"http://127.0.0.1:8080/form"</span>, json=form_spec, stream=<span class="hlg">True</span>)
-<span class="hlg">for</span> line <span class="hlg">in</span> resp.iter_lines():
-    <span class="hlg">if</span> line.startswith(<span class="hly">b"data:"</span>): result = json.loads(line[5:]); <span class="hlg">break</span>
-
-<span class="hlm"># WebSocket: start daemon then connect</span>
-<span class="hlb">a2n</span> <span class="hlp">--session</span> my-session <span class="hlp">--ws</span> 8081
-<span class="hlg">ws</span>.send(json.dumps(form_spec))   <span class="hlm"># → {"type":"waiting"}</span>
-<span class="hlg">result</span> = json.loads(ws.recv())   <span class="hlm"># → {"type":"result","data":{...}}</span>
-
-<span class="hlm"># Close when done</span>
-<span class="hlb">a2n</span> <span class="hlp">--close</span> my-session</code></pre>
-
-    <p style="color:var(--muted);font-size:0.9rem;margin-top:1rem">
-      Both endpoints auto-detect input format (a2native / A2UI / AG-UI) and share the same
-      serialised queue as the CLI session protocol — all three can run simultaneously.
-    </p>
   </div>
 </section>
 
@@ -607,7 +311,7 @@
   </div>
 </section>
 
-<!-- Install -->
+<!-- Get Started -->
 <section>
   <div class="container">
     <h2>Get Started</h2>
@@ -617,7 +321,7 @@
 <span class="hlb">cd</span> a2native
 <span class="hlg">cargo build</span> <span class="hlp">--release</span>
 
-<span class="hlm"># Show help (also shown when there is no JSON arg and no stdin pipe)</span>
+<span class="hlm"># Show help</span>
 <span class="hlb">./target/release/a2n</span> help
 
 <span class="hlm"># Print the a2native input JSON Schema</span>
@@ -627,15 +331,12 @@
 <span class="hlb">./target/release/a2n</span> <span class="hly">'{"components":[{"id":"n","type":"text-field","label":"Name"}]}'</span>
 
 <span class="hlm"># One-shot: JSON from stdin</span>
-<span class="hlg">echo</span> <span class="hly">'{"components":[{"id":"n","type":"text-field","label":"Name"}]}'</span> | <span class="hlb">./target/release/a2n</span>
+<span class="hlg">echo</span> <span class="hly">'{"components":[{"id":"n","type":"text-field","label":"Name"}]}'</span> | <span class="hlb">./target/release/a2n</span></code></pre>
 
-<span class="hlm"># Multi-turn session (CLI)</span>
-<span class="hlg">echo</span> <span class="hly">'{"title":"Step 1","components":[...]}'</span> | <span class="hlb">a2n</span> <span class="hlp">--session</span> <span class="hly">"$(uuidgen)"</span>
-
-<span class="hlm"># Session with SSE endpoint (for Python / Node agents)</span>
-<span class="hlb">a2n</span> <span class="hlp">--session</span> my-session <span class="hlp">--sse</span> 8080
-<span class="hlm"># Session with WebSocket endpoint</span>
-<span class="hlb">a2n</span> <span class="hlp">--session</span> my-session <span class="hlp">--ws</span> 8081</code></pre>
+    <p style="margin-top:1.25rem;color:var(--muted);font-size:0.9rem">
+      For multi-turn sessions and HTTP/SSE or WebSocket integration, see the
+      <a href="advanced.html" style="color:var(--accent2)">Advanced Usage →</a> page.
+    </p>
   </div>
 </section>
 
