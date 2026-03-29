@@ -228,6 +228,7 @@
     <li><a href="#demo">Demo</a></li>
     <li><a href="#problem">Problem</a></li>
     <li><a href="#session">Sessions</a></li>
+    <li><a href="#sse-ws">SSE/WS</a></li>
     <li><a href="#protocol">Protocol</a></li>
     <li><a href="#security">Security</a></li>
   </ul>
@@ -420,6 +421,50 @@
   </div>
 </section>
 
+<!-- SSE / WebSocket -->
+<section id="sse-ws">
+  <div class="container">
+    <h2>HTTP/SSE &amp; WebSocket</h2>
+    <p class="section-sub">Add <code>--sse &lt;PORT&gt;</code> or <code>--ws &lt;PORT&gt;</code> to a session — any language can drive a2native directly, no CLI wrapper needed.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <div style="color:var(--accent2);font-weight:600;margin-bottom:0.5rem">HTTP / SSE</div>
+        <code style="font-size:0.8rem;color:var(--muted)">POST http://127.0.0.1:PORT/form</code>
+        <p style="font-size:0.85rem;color:var(--muted);margin-top:0.5rem">Body: JSON form spec. Response: <code>text/event-stream</code> — <em>waiting</em> event then <em>result</em> event.</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:0.4rem">Also: <code>GET /health</code> liveness probe.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <div style="color:var(--accent2);font-weight:600;margin-bottom:0.5rem">WebSocket</div>
+        <code style="font-size:0.8rem;color:var(--muted)">ws://127.0.0.1:PORT</code>
+        <p style="font-size:0.85rem;color:var(--muted);margin-top:0.5rem">Send form spec as text frame. Receive <em>{type:waiting}</em> then <em>{type:result,data:{…}}</em>. One connection, multiple forms.</p>
+      </div>
+    </div>
+
+    <pre><code><span class="hlm"># Start SSE daemon (no initial form needed)</span>
+<span class="hlb">a2n</span> <span class="hlp">--session</span> my-session <span class="hlp">--sse</span> 8080
+<span class="hlm"># → a2n: SSE  http://127.0.0.1:8080/form  (session: my-session)</span>
+
+<span class="hlm"># Python agent — POST form spec, read SSE result</span>
+<span class="hlg">resp</span> = requests.post(<span class="hly">"http://127.0.0.1:8080/form"</span>, json=form_spec, stream=<span class="hlg">True</span>)
+<span class="hlg">for</span> line <span class="hlg">in</span> resp.iter_lines():
+    <span class="hlg">if</span> line.startswith(<span class="hly">b"data:"</span>): result = json.loads(line[5:]); <span class="hlg">break</span>
+
+<span class="hlm"># WebSocket: start daemon then connect</span>
+<span class="hlb">a2n</span> <span class="hlp">--session</span> my-session <span class="hlp">--ws</span> 8081
+<span class="hlg">ws</span>.send(json.dumps(form_spec))   <span class="hlm"># → {"type":"waiting"}</span>
+<span class="hlg">result</span> = json.loads(ws.recv())   <span class="hlm"># → {"type":"result","data":{...}}</span>
+
+<span class="hlm"># Close when done</span>
+<span class="hlb">a2n</span> <span class="hlp">--close</span> my-session</code></pre>
+
+    <p style="color:var(--muted);font-size:0.9rem;margin-top:1rem">
+      Both endpoints auto-detect input format (a2native / A2UI / AG-UI) and share the same
+      serialised queue as the CLI session protocol — all three can run simultaneously.
+    </p>
+  </div>
+</section>
+
 <!-- Protocol -->
 <section id="protocol">
   <div class="container">
@@ -584,8 +629,13 @@
 <span class="hlm"># One-shot: JSON from stdin</span>
 <span class="hlg">echo</span> <span class="hly">'{"components":[{"id":"n","type":"text-field","label":"Name"}]}'</span> | <span class="hlb">./target/release/a2n</span>
 
-<span class="hlm"># Multi-turn session</span>
-<span class="hlg">echo</span> <span class="hly">'{"title":"Step 1","components":[...]}'</span> | <span class="hlb">a2n</span> <span class="hlp">--session</span> <span class="hly">"$(uuidgen)"</span></code></pre>
+<span class="hlm"># Multi-turn session (CLI)</span>
+<span class="hlg">echo</span> <span class="hly">'{"title":"Step 1","components":[...]}'</span> | <span class="hlb">a2n</span> <span class="hlp">--session</span> <span class="hly">"$(uuidgen)"</span>
+
+<span class="hlm"># Session with SSE endpoint (for Python / Node agents)</span>
+<span class="hlb">a2n</span> <span class="hlp">--session</span> my-session <span class="hlp">--sse</span> 8080
+<span class="hlm"># Session with WebSocket endpoint</span>
+<span class="hlb">a2n</span> <span class="hlp">--session</span> my-session <span class="hlp">--ws</span> 8081</code></pre>
   </div>
 </section>
 
