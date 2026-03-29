@@ -43,22 +43,83 @@ const codeAgUi = `<span class="hlm">// Input — AG-UI event stream</span>
 {<span class="hlp">"type"</span>:<span class="hly">"TOOL_CALL_RESULT"</span>,<span class="hlp">"messageId"</span>:<span class="hly">"tc1-result"</span>,<span class="hlp">"toolCallId"</span>:<span class="hly">"tc1"</span>,
  <span class="hlp">"content"</span>:<span class="hly">"{\"status\":\"submitted\",\"values\":{}}"</span>,<span class="hlp">"role"</span>:<span class="hly">"tool"</span>}`;
 
-const codeGetStarted = `<span class="hlm"># Build from source</span>
+const codeSystemPrompt = `Use \`a2native\` (\`a2n\`) to collect structured
+input from the user instead of asking
+questions in chat.
+
+Quick reference:
+  a2n '{"components":[...]}' # one-shot
+  a2n --session UUID '...'   # multi-turn
+  a2n help                   # full schema
+
+Always include at least one submit button:
+  {"id":"ok","type":"button",
+   "label":"Submit","action":"submit"}`;
+
+const codeLlmTool = `{
+  "name": "show_form",
+  "description": "Show a native UI form to the user and return their input. Use this instead of asking questions in chat.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "title":      { "type": "string" },
+      "components": { "type": "array" }
+    },
+    "required": ["components"]
+  }
+}`;
+
+const codePythonAgents = `<span class="hlg">import</span> subprocess, json
+
+form = {
+  <span class="hly">"title"</span>: <span class="hly">"Configure deployment"</span>,
+  <span class="hly">"components"</span>: [
+    {<span class="hly">"id"</span>: <span class="hly">"env"</span>, <span class="hly">"type"</span>: <span class="hly">"dropdown"</span>, <span class="hly">"label"</span>: <span class="hly">"Environment"</span>,
+     <span class="hly">"options"</span>: [{<span class="hly">"value"</span>:<span class="hly">"prod"</span>,<span class="hly">"label"</span>:<span class="hly">"Production"</span>},{<span class="hly">"value"</span>:<span class="hly">"stg"</span>,<span class="hly">"label"</span>:<span class="hly">"Staging"</span>}],
+     <span class="hly">"required"</span>: True},
+    {<span class="hly">"id"</span>: <span class="hly">"tag"</span>,  <span class="hly">"type"</span>: <span class="hly">"text-field"</span>, <span class="hly">"label"</span>: <span class="hly">"Image tag"</span>,
+     <span class="hly">"placeholder"</span>: <span class="hly">"v1.2.3"</span>, <span class="hly">"required"</span>: True},
+    {<span class="hly">"id"</span>: <span class="hly">"go"</span>,   <span class="hly">"type"</span>: <span class="hly">"button"</span>,     <span class="hly">"label"</span>: <span class="hly">"Deploy"</span>, <span class="hly">"action"</span>: <span class="hly">"submit"</span>},
+  ]
+}
+
+result = subprocess.run([<span class="hly">"a2n"</span>], input=json.dumps(form),
+                        capture_output=True, text=True)
+data = json.loads(result.stdout)
+
+<span class="hlg">if</span> data[<span class="hly">"status"</span>] == <span class="hly">"submitted"</span>:
+    deploy(data[<span class="hly">"values"</span>][<span class="hly">"env"</span>], data[<span class="hly">"values"</span>][<span class="hly">"tag"</span>])`;
+
+const codeJsSdkAgents = `<span class="hlm"># npm install @a2native/js</span>
+<span class="hlg">import</span> { showForm } from <span class="hly">"@a2native/js"</span>;
+
+<span class="hlg">const</span> result = <span class="hlg">await</span> showForm({
+  title: <span class="hly">"Pick a model"</span>,
+  components: [
+    { id: <span class="hly">"model"</span>, type: <span class="hly">"radio-group"</span>, label: <span class="hly">"Model"</span>,
+      options: [{ value: <span class="hly">"gpt-4o"</span>, label: <span class="hly">"GPT-4o"</span> },
+                { value: <span class="hly">"claude"</span>, label: <span class="hly">"Claude"</span> }],
+      required: true },
+    { id: <span class="hly">"ok"</span>, type: <span class="hly">"button"</span>, label: <span class="hly">"Select"</span>, action: <span class="hly">"submit"</span> },
+  ],
+});
+<span class="hlm">// result.status === "submitted", result.values.model === "gpt-4o"</span>`;
+
+const codeGetStarted = `<span class="hlm"># Install from crates.io</span>
+<span class="hlg">cargo install</span> a2native
+
+<span class="hlm"># Or build from source</span>
 <span class="hlg">git clone</span> https://github.com/a2native/a2native.git
-<span class="hlb">cd</span> a2native
-<span class="hlg">cargo build</span> <span class="hlp">--release</span>
+<span class="hlb">cd</span> a2native && <span class="hlg">cargo build</span> <span class="hlp">--release</span>
 
-<span class="hlm"># Show help</span>
-<span class="hlb">./target/release/a2n</span> help
-
-<span class="hlm"># Print the a2native input JSON Schema</span>
-<span class="hlb">./target/release/a2n</span> schema
+<span class="hlm"># Show help + full schema reference</span>
+<span class="hlb">a2n</span> help
 
 <span class="hlm"># One-shot: JSON as inline argument</span>
-<span class="hlb">./target/release/a2n</span> <span class="hly">'{"components":[{"id":"n","type":"text-field","label":"Name"}]}'</span>
+<span class="hlb">a2n</span> <span class="hly">'{"components":[{"id":"n","type":"text-field","label":"Name","required":true}]}'</span>
 
 <span class="hlm"># One-shot: JSON from stdin</span>
-<span class="hlg">echo</span> <span class="hly">'{"components":[{"id":"n","type":"text-field","label":"Name"}]}'</span> | <span class="hlb">./target/release/a2n</span>`;
+<span class="hlg">echo</span> <span class="hly">'{"title":"Pick one","components":[...]}'</span> | <span class="hlb">a2n</span>`;
 ---
 
 <Layout
@@ -80,6 +141,11 @@ const codeGetStarted = `<span class="hlm"># Build from source</span>
     <a class="btn btn-primary" href="https://github.com/a2native/a2native/releases">Download</a>
     <a class="btn btn-outline" href="https://github.com/a2native/a2native">View on GitHub</a>
   </div>
+  <p style="margin-top:1rem;color:var(--muted);font-size:0.85rem">
+    <code style="background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:4px">cargo install a2native</code>
+    &nbsp;·&nbsp;
+    <code style="background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:4px">npm install @a2native/js</code>
+  </p>
 
   <!-- Flow -->
   <div class="flow">
@@ -317,11 +383,42 @@ const codeGetStarted = `<span class="hlm"># Build from source</span>
   </div>
 </section>
 
+<!-- Usage with AI Agents -->
+<section id="agents">
+  <div class="container">
+    <h2>Usage with AI Agents</h2>
+    <p class="section-sub">Tell your agent — no SDK or setup required.</p>
+
+    <div class="two-col" style="gap:2rem;margin-bottom:2rem">
+      <div>
+        <h3 style="margin-top:0;font-size:1.05rem">Just tell your agent</h3>
+        <p style="color:var(--muted);font-size:0.9rem">
+          The simplest approach — include this in your system prompt or <code>AGENTS.md</code>:
+        </p>
+        <pre style="font-size:0.82rem"><code set:html={codeSystemPrompt}></code></pre>
+      </div>
+      <div>
+        <h3 style="margin-top:0;font-size:1.05rem">LLM tool definition</h3>
+        <p style="color:var(--muted);font-size:0.9rem">
+          Define <code>show_form</code> as a tool in your framework:
+        </p>
+        <pre style="font-size:0.82rem"><code set:html={codeLlmTool}></code></pre>
+      </div>
+    </div>
+
+    <h3 style="font-size:1.05rem">Python example</h3>
+    <pre><code set:html={codePythonAgents}></code></pre>
+
+    <h3 style="font-size:1.05rem;margin-top:1.5rem">JavaScript SDK</h3>
+    <pre><code set:html={codeJsSdkAgents}></code></pre>
+  </div>
+</section>
+
 <!-- Get Started -->
 <section>
   <div class="container">
     <h2>Get Started</h2>
-    <p class="section-sub">Build from source or download a pre-built binary.</p>
+    <p class="section-sub">Install via Cargo, or download a pre-built binary.</p>
     <pre><code set:html={codeGetStarted}></code></pre>
 
     <p style="margin-top:1.25rem;color:var(--muted);font-size:0.9rem">
